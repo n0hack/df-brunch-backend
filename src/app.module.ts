@@ -5,8 +5,12 @@ import { dbConfig } from './config/db.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot(dbConfig),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: dbConfig,
+    }),
   ],
   controllers: [],
   providers: [],
