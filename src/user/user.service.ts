@@ -19,4 +19,10 @@ export class UserService {
 
     return newUser;
   }
+
+  async update(id: number, data: Partial<User>) {
+    await this.userRepository.update(id, data);
+
+    return this.findById(id);
+  }
 }

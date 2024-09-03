@@ -1,4 +1,10 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { Provider } from '@/types/user';
@@ -44,5 +50,18 @@ export class AuthService {
       user,
       accessToken,
     };
+  }
+
+  async approveNewUser(id: number) {
+    if (!(await this.userService.findById(id))) {
+      throw new NotFoundException('존재하지 않는 사용자입니다.');
+    }
+
+    const user = await this.userService.findById(id);
+    if (user.isAapproved) {
+      throw new BadRequestException('이미 승인된 사용자입니다.');
+    }
+
+    return this.userService.update(id, { isAapproved: true });
   }
 }
