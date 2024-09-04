@@ -1,6 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@/entities/user.entity';
+import { Provider } from '@/types/user';
 
 export class UserService {
   constructor(@InjectRepository(User) private userRepository: Repository<User>) {}
@@ -24,5 +25,9 @@ export class UserService {
     await this.userRepository.update(id, data);
 
     return this.findById(id);
+  }
+
+  async count() {
+    return this.userRepository.count({ where: { provider: Provider.LOCAL } });
   }
 }

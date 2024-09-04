@@ -1,7 +1,11 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Role } from '@/types/user';
 import { AuthService } from './auth.service';
+import { Roles } from './decorators/roles.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { AuthGuard } from './guards/auth.guard';
+import { RoleGurad } from './guards/role.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -18,6 +22,8 @@ export class AuthController {
   }
 
   @Post('approve-new-user/:id')
+  @UseGuards(AuthGuard, RoleGurad)
+  @Roles(Role.ADMIN, Role.DEVELOPER)
   approveNewUser(@Param('id') id: number) {
     return this.authService.approveNewUser(id);
   }

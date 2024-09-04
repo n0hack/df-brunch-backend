@@ -7,16 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
 @Module({
-  imports: [
-    UserModule,
-    TypeOrmModule.forFeature([User]),
-    JwtModule.registerAsync({
-      useFactory: async () => ({
-        secret: process.env.JWT_ACCESS_SECRET,
-        signOptions: { expiresIn: process.env.JWT_ACCESS_EXPIRES },
-      }),
-    }),
-  ],
+  imports: [UserModule, TypeOrmModule.forFeature([User]), JwtModule.register({})],
   controllers: [AuthController],
   providers: [AuthService],
 })

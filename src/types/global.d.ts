@@ -10,6 +10,7 @@ declare namespace NodeJS {
     // JWT
     JWT_ACCESS_SECRET: string;
     JWT_ACCESS_EXPIRES: string;
+    JWT_ACCESS_HEADER_NAME: string;
 
     // NODE_ENV
     NODE_ENV: 'production' | 'development' | 'test';

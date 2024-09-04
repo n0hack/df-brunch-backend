@@ -1,12 +1,14 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
+import { JwtPayload } from '@/types/auth';
 import { Provider } from '@/types/user';
 import { UserService } from '@/user/user.service';
 import { LoginDto } from './dto/login.dto';
@@ -20,6 +22,11 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
+    // 서버 비용 절감을 위해 계정 생성 제한
+    if ((await this.userService.count()) >= 100) {
+      throw new ForbiddenException('신규 계정 생성이 불가합니다.');
+    }
+
     const { email, password, adventureName } = dto;
 
     if (await this.userService.findByEmail(email)) {
@@ -43,8 +50,8 @@ export class AuthService {
       throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.');
     }
 
-    const payload = { id: user.id, email: user.email };
-    const accessToken = this.jwtService.sign(payload);
+    const payload: JwtPayload = { id: user.id, email: user.email };
+    const accessToken = await this.generateAccessToken(payload);
 
     return {
       user,
@@ -63,5 +70,18 @@ export class AuthService {
     }
 
     return this.userService.update(id, { isAapproved: true });
+  }
+
+  async generateAccessToken(payload: JwtPayload) {
+    return this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: process.env.JWT_ACCESS_EXPIRES,
+    });
+  }
+
+  async verifyAccessToken(token: string) {
+    return this.jwtService.verifyAsync<JwtPayload>(token, {
+      secret: process.env.JWT_ACCESS_SECRET,
+    });
   }
 }
